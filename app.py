@@ -29,6 +29,14 @@ class Booking(db.Model):
     start_date = db.Column(db.String(20), nullable=False)
     payment_method = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(50), default='Новая')
+    # Связь с отзывами (один ко многим)
+    reviews = db.relationship('Review', backref='booking', lazy=True)
+
+# НОВАЯ МОДЕЛЬ ДЛЯ ОТЗЫВОВ
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)
 
 # Маршруты
 @app.route('/')
@@ -101,6 +109,22 @@ def booking():
         return redirect(url_for('profile'))
     return render_template('booking.html')
 
+# НОВЫЙ МАРШРУТ ДЛЯ ДОБАВЛЕНИЯ ОТЗЫВА
+@app.route('/add_review/<int:booking_id>', methods=['POST'])
+def add_review(booking_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    booking = Booking.query.get(booking_id)
+    if booking and booking.user_id == session['user_id'] and booking.status != 'Новая':
+        text = request.form['review_text']
+        new_review = Review(booking_id=booking.id, text=text)
+        db.session.add(new_review)
+        db.session.commit()
+        flash('Отзыв успешно добавлен!', 'success')
+    
+    return redirect(url_for('profile'))
+
 @app.route('/admin')
 def admin():
     if 'user_id' not in session:
@@ -140,6 +164,5 @@ if __name__ == '__main__':
                          full_name='Администратор', phone='+7 999 000-00-00', email='admin@banketam.net')
             db.session.add(admin)
             db.session.commit()
-            print('Админ создан: Admin26 / Demo20')
     print('Сервер запущен: http://127.0.0.1:5000')
     app.run(debug=True)
