@@ -6,14 +6,12 @@ import os
 app = Flask(__name__)
 app.secret_key = 'super-secret-key'
 
-# Настройка базы данных
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'banketam.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Модели (таблицы БД)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(50), unique=True, nullable=False)
@@ -36,7 +34,6 @@ class Review(db.Model):
     booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
 
-# Маршруты
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -129,9 +126,9 @@ def admin():
         flash('Доступ только для администратора', 'error')
         return redirect(url_for('profile'))
     
-    # Логика фильтрации и сортировки
     status_filter = request.args.get('status', 'Все')
     sort_order = request.args.get('sort', 'desc')
+    page = request.args.get('page', 1, type=int) # Номер страницы
 
     query = Booking.query
     if status_filter != 'Все':
@@ -142,8 +139,11 @@ def admin():
     else:
         query = query.order_by(Booking.start_date.desc())
 
-    all_bookings = query.all()
-    return render_template('admin.html', bookings=all_bookings, current_status=status_filter, current_sort=sort_order)
+    # ПАГИНАЦИЯ: разбиваем по 2 заявки на страницу (чтобы ты сразу увидела эффект)
+    pagination = query.paginate(page=page, per_page=2, error_out=False)
+    all_bookings = pagination.items
+
+    return render_template('admin.html', bookings=all_bookings, current_status=status_filter, current_sort=sort_order, pagination=pagination)
 
 @app.route('/admin/status/<int:booking_id>/<status>')
 def change_status(booking_id, status):

@@ -37,5 +37,21 @@
 {% else %}
     <p>Заявок с таким статусом нет.</p>
 {% endfor %}
+
+<!-- БЛОК ПАГИНАЦИИ (КНОПКИ СТРАНИЦ) -->
+<div style="display: flex; justify-content: center; gap: 10px; margin: 20px 0;">
+    {% if pagination.has_prev %}
+        <a href="{{ url_for('admin', page=pagination.prev_num, status=current_status, sort=current_sort) }}" style="padding: 8px 12px; background: #3498db; color: white; border-radius: 5px; text-decoration: none;">← Назад</a>
+    {% endif %}
+
+    <span style="padding: 8px 12px; background: #f5f5f5; border-radius: 5px; font-weight: bold;">
+        Страница {{ pagination.page }} из {{ pagination.pages }}
+    </span>
+
+    {% if pagination.has_next %}
+        <a href="{{ url_for('admin', page=pagination.next_num, status=current_status, sort=current_sort) }}" style="padding: 8px 12px; background: #3498db; color: white; border-radius: 5px; text-decoration: none;">Вперед →</a>
+    {% endif %}
+</div>
+
 <a href="{{ url_for('profile') }}" class="link-center">← В кабинет</a>
 {% endblock %}
