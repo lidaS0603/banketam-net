@@ -29,10 +29,8 @@ class Booking(db.Model):
     start_date = db.Column(db.String(20), nullable=False)
     payment_method = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(50), default='Новая')
-    # Связь с отзывами (один ко многим)
     reviews = db.relationship('Review', backref='booking', lazy=True)
 
-# НОВАЯ МОДЕЛЬ ДЛЯ ОТЗЫВОВ
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=False)
@@ -109,12 +107,10 @@ def booking():
         return redirect(url_for('profile'))
     return render_template('booking.html')
 
-# НОВЫЙ МАРШРУТ ДЛЯ ДОБАВЛЕНИЯ ОТЗЫВА
 @app.route('/add_review/<int:booking_id>', methods=['POST'])
 def add_review(booking_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
     booking = Booking.query.get(booking_id)
     if booking and booking.user_id == session['user_id'] and booking.status != 'Новая':
         text = request.form['review_text']
@@ -122,7 +118,6 @@ def add_review(booking_id):
         db.session.add(new_review)
         db.session.commit()
         flash('Отзыв успешно добавлен!', 'success')
-    
     return redirect(url_for('profile'))
 
 @app.route('/admin')
@@ -133,8 +128,22 @@ def admin():
     if not user or user.login != 'Admin26':
         flash('Доступ только для администратора', 'error')
         return redirect(url_for('profile'))
-    all_bookings = Booking.query.all()
-    return render_template('admin.html', bookings=all_bookings)
+    
+    # Логика фильтрации и сортировки
+    status_filter = request.args.get('status', 'Все')
+    sort_order = request.args.get('sort', 'desc')
+
+    query = Booking.query
+    if status_filter != 'Все':
+        query = query.filter_by(status=status_filter)
+    
+    if sort_order == 'asc':
+        query = query.order_by(Booking.start_date.asc())
+    else:
+        query = query.order_by(Booking.start_date.desc())
+
+    all_bookings = query.all()
+    return render_template('admin.html', bookings=all_bookings, current_status=status_filter, current_sort=sort_order)
 
 @app.route('/admin/status/<int:booking_id>/<status>')
 def change_status(booking_id, status):

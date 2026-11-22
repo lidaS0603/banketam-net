@@ -1,6 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Панель администратора</h1>
+
+<!-- ФОРМА ФИЛЬТРАЦИИ И СОРТИРОВКИ -->
+<form method="GET" action="{{ url_for('admin') }}" style="background: #eef2f5; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+    <label style="font-size: 14px; font-weight: bold;">Фильтр по статусу:</label>
+    <select name="status" style="margin-bottom: 10px;">
+        <option value="Все" {% if current_status == 'Все' %}selected{% endif %}>Все</option>
+        <option value="Новая" {% if current_status == 'Новая' %}selected{% endif %}>Новая</option>
+        <option value="Банкет назначен" {% if current_status == 'Банкет назначен' %}selected{% endif %}>Банкет назначен</option>
+        <option value="Банкет завершен" {% if current_status == 'Банкет завершен' %}selected{% endif %}>Банкет завершен</option>
+    </select>
+
+    <label style="font-size: 14px; font-weight: bold;">Сортировка по дате:</label>
+    <select name="sort" style="margin-bottom: 10px;">
+        <option value="desc" {% if current_sort == 'desc' %}selected{% endif %}>Сначала новые</option>
+        <option value="asc" {% if current_sort == 'asc' %}selected{% endif %}>Сначала старые</option>
+    </select>
+
+    <button type="submit" style="padding: 8px; font-size: 14px;">Применить</button>
+</form>
+
 {% for b in bookings %}
     <div class="card">
         <p><strong>Заявка #{{ b.id }}</strong></p>
@@ -15,7 +35,7 @@
         <a href="{{ url_for('change_status', booking_id=b.id, status='Банкет завершен') }}">🏁 Завершить</a>
     </div>
 {% else %}
-    <p>Заявок пока нет.</p>
+    <p>Заявок с таким статусом нет.</p>
 {% endfor %}
 <a href="{{ url_for('profile') }}" class="link-center">← В кабинет</a>
 {% endblock %}
