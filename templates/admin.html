@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Панель администратора</h1>
+{% for b in bookings %}
+    <div class="card">
+        <p><strong>Заявка #{{ b.id }}</strong></p>
+        <p>Помещение: {{ b.room_name }}</p>
+        <p>Дата: {{ b.start_date }}</p>
+        <p>Оплата: {{ b.payment_method }}</p>
+        <p>Статус: <span class="status 
+            {% if b.status == 'Новая' %}status-new
+            {% elif b.status == 'Банкет назначен' %}status-assigned
+            {% else %}status-done{% endif %}">{{ b.status }}</span></p>
+        <a href="{{ url_for('change_status', booking_id=b.id, status='Банкет назначен') }}">✅ Назначить</a> |
+        <a href="{{ url_for('change_status', booking_id=b.id, status='Банкет завершен') }}">🏁 Завершить</a>
+    </div>
+{% else %}
+    <p>Заявок пока нет.</p>
+{% endfor %}
+<a href="{{ url_for('profile') }}" class="link-center">← В кабинет</a>
+{% endblock %}

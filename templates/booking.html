@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Новая заявка</h1>
+<form method="POST">
+    <select name="room" required>
+        <option value="">Выберите помещение</option>
+        <option value="Зал">Зал</option>
+        <option value="Ресторан">Ресторан</option>
+        <option value="Летняя веранда">Летняя веранда</option>
+        <option value="Закрытая веранда">Закрытая веранда</option>
+    </select>
+    <input type="text" name="date" placeholder="Дата (ДД.ММ.ГГГГ)" required>
+    <select name="payment" required>
+        <option value="">Способ оплаты</option>
+        <option value="Наличные">Наличные</option>
+        <option value="Карта">Карта</option>
+        <option value="Перевод">Перевод</option>
+    </select>
+    <button type="submit">Отправить заявку</button>
+</form>
+<a href="{{ url_for('profile') }}" class="link-center">← Назад в кабинет</a>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Регистрация</h1>
+<form method="POST">
+    <input type="text" name="login" placeholder="Логин (латиница, цифры, от 6 символов)" required>
+    <input type="password" name="password" placeholder="Пароль (от 8 символов)" required>
+    <input type="text" name="full_name" placeholder="ФИО" required>
+    <input type="text" name="phone" placeholder="Телефон" required>
+    <input type="email" name="email" placeholder="E-mail" required>
+    <button type="submit">Зарегистрироваться</button>
+</form>
+<a href="{{ url_for('login') }}" class="link-center">Уже есть аккаунт? Войти</a>
+{% endblock %}

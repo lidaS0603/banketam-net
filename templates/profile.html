@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="slider-container">
+    <div class="slider">
+        <div class="slide"><img src="{{ url_for('static', filename='slide1.jpg') }}" alt="Зал 1"></div>
+        <div class="slide"><img src="{{ url_for('static', filename='slide2.jpg') }}" alt="Зал 2"></div>
+        <div class="slide"><img src="{{ url_for('static', filename='slide3.jpg') }}" alt="Зал 3"></div>
+        <div class="slide"><img src="{{ url_for('static', filename='slide4.jpg') }}" alt="Зал 4"></div>
+    </div>
+    <button class="slider-btn prev" onclick="moveSlide(-1)">&#10094;</button>
+    <button class="slider-btn next" onclick="moveSlide(1)">&#10095;</button>
+</div>
+<h1>Личный кабинет</h1>
+<p><strong>{{ user.full_name }}</strong></p>
+<p>{{ user.email }} | {{ user.phone }}</p>
+
+<h2>Мои заявки</h2>
+{% if bookings %}
+    {% for b in bookings %}
+        <div class="card">
+            <p><strong>{{ b.room_name }}</strong></p>
+            <p>Дата: {{ b.start_date }}</p>
+            <p>Оплата: {{ b.payment_method }}</p>
+            <span class="status 
+                {% if b.status == 'Новая' %}status-new
+                {% elif b.status == 'Банкет назначен' %}status-assigned
+                {% else %}status-done{% endif %}">
+                {{ b.status }}
+            </span>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>У вас пока нет заявок.</p>
+{% endif %}
+
+<a href="{{ url_for('booking') }}" class="link-center">➕ Создать заявку</a>
+<a href="{{ url_for('logout') }}" class="link-center">Выйти</a>
+{% if user.login == 'Admin26' %}
+    <a href="{{ url_for('admin') }}" class="link-center">🔧 Панель администратора</a>
+{% endif %}
+{% endblock %}
